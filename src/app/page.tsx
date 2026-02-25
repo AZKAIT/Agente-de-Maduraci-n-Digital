@@ -31,18 +31,18 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const searchParams = useSearchParams();
+  const sp = useSearchParams();
   const [showResetAlert, setShowResetAlert] = useState(false);
   const [showVerifyAlert, setShowVerifyAlert] = useState(false);
 
   useEffect(() => {
-    if (searchParams) {
-        const mode = searchParams.get('mode');
-        const encodedEmail = searchParams.get('u');
-        const rawEmail = searchParams.get('email');
+    if (sp) {
+        const mode = sp.get('mode');
+        const encodedEmail = sp.get('u');
+        const rawEmail = sp.get('email');
         const emailParam = encodedEmail ? decodeUserIdentifier(encodedEmail) : rawEmail;
-        const reset = searchParams.get('reset');
-        const verify = searchParams.get('verify');
+        const reset = sp.get('reset');
+        const verify = sp.get('verify');
         
         if (mode === 'register') {
             setIsRegistering(true);
@@ -57,7 +57,7 @@ export default function LoginPage() {
             setShowVerifyAlert(true);
         }
     }
-  }, [searchParams]);
+  }, [sp]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();

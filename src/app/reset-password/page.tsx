@@ -9,7 +9,7 @@ import NeuralNetwork from '@/components/NeuralNetwork';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const sp = useSearchParams();
   const [codeValid, setCodeValid] = useState(false);
   const [verificationError, setVerificationError] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -18,7 +18,7 @@ export default function ResetPasswordPage() {
   const [submitMessage, setSubmitMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const oobCode = searchParams.get('oobCode');
+  const oobCode = sp ? sp.get('oobCode') : null;
 
   useEffect(() => {
     const verifyCode = async () => {
@@ -160,4 +160,3 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
-
