@@ -14,11 +14,11 @@ import { decodeUserIdentifier } from '@/lib/utils';
 function InterviewContent() {
   const { user, userData, loading } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const interviewId = searchParams.get('id');
+  const sp = useSearchParams();
+  const interviewId = sp ? sp.get('id') : null;
   
-  const encodedUserParam = searchParams.get('u');
-  const rawUserParam = searchParams.get('user');
+  const encodedUserParam = sp ? sp.get('u') : null;
+  const rawUserParam = sp ? sp.get('user') : null;
   const invitedUserEmail = encodedUserParam ? decodeUserIdentifier(encodedUserParam) : rawUserParam;
   
   const [currentUserInfo, setCurrentUserInfo] = useState<{name: string, role: string} | null>(null);
