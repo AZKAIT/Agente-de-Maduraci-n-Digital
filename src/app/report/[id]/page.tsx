@@ -91,12 +91,12 @@ function ReportContent() {
   const { user, loading: authLoading } = useAuth();
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const sp = useSearchParams();
   const { id } = params as { id: string };
   
   // Support both 'u' (encoded) and legacy 'user' (plaintext) params
-  const encodedUserParam = searchParams.get('u');
-  const rawUserParam = searchParams.get('user');
+  const encodedUserParam = sp ? sp.get('u') : null;
+  const rawUserParam = sp ? sp.get('user') : null;
   const userEmail = encodedUserParam ? decodeUserIdentifier(encodedUserParam) : rawUserParam;
   
   const [report, setReport] = useState<ReportData | null>(null);
