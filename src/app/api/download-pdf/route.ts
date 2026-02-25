@@ -68,8 +68,8 @@ export async function GET(request: Request) {
 
     await browser.close();
 
-    const blob = new Blob([pdfBuffer], { type: 'application/pdf' });
-    return new NextResponse(blob, {
+    return new Response(pdfBuffer as any, {
+      status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="Reporte_AzkaIT_${userEmail || 'Executive'}.pdf"`,
