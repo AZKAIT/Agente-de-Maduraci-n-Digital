@@ -422,7 +422,7 @@ function ReportContent() {
             
             <Grid container spacing={4}>
                 {/* Short Term */}
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                     <div className="flex items-center gap-2 mb-4">
                         <div className="w-2 h-2 rounded-full bg-[#00d4b6]"></div>
                         <Typography variant="subtitle2" className="font-bold text-slate-600">
@@ -441,7 +441,7 @@ function ReportContent() {
                 </Grid>
 
                 {/* Medium Term */}
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                     <div className="flex items-center gap-2 mb-4">
                         <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
                         <Typography variant="subtitle2" className="font-bold text-slate-600">
@@ -460,7 +460,7 @@ function ReportContent() {
                 </Grid>
 
                 {/* Long Term */}
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                     <div className="flex items-center gap-2 mb-4">
                         <div className="w-2 h-2 rounded-full bg-slate-800"></div>
                         <Typography variant="subtitle2" className="font-bold text-slate-600">
