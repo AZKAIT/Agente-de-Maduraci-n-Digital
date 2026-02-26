@@ -1,9 +1,10 @@
 'use client';
 import React, { useEffect, useState, Suspense } from 'react';
 import { 
-  Typography, Button, Box, Paper, CircularProgress, Grid, Chip, 
+  Typography, Button, Box, Paper, CircularProgress, Chip, 
   Card, CardContent, LinearProgress 
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import DownloadIcon from '@mui/icons-material/Download';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import RefreshIcon from '@mui/icons-material/Refresh';
