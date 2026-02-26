@@ -3,7 +3,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-const firebaseConfig = {
+const firebaseConfig: any = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -13,13 +13,20 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-// Singleton pattern to avoid re-initialization in Next.js
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+const canInitialize = Boolean(firebaseConfig.apiKey);
 
-// Analytics only works on the client side
-const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
-const db = getFirestore(app);
-const auth = getAuth(app);
+let app: any = null;
+let analytics: any = null;
+let db: any = null;
+let auth: any = null;
+
+if (canInitialize) {
+  app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  if (typeof window !== 'undefined') {
+    analytics = getAnalytics(app);
+  }
+  db = getFirestore(app);
+  auth = getAuth(app);
+}
 
 export { app, analytics, db, auth };
