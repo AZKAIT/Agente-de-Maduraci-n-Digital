@@ -4,7 +4,7 @@ import {
   Typography, Button, Box, Paper, CircularProgress, Chip, 
   Card, CardContent, LinearProgress 
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid2 from '@mui/material/Unstable_Grid2';
 import DownloadIcon from '@mui/icons-material/Download';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -421,9 +421,9 @@ function ReportContent() {
                 Roadmap de IA Recomendado
             </Typography>
             
-            <Grid container spacing={4}>
+            <Grid2 container spacing={4}>
                 {/* Short Term */}
-                <Grid xs={12} md={4}>
+                <Grid2 xs={12} md={4}>
                     <div className="flex items-center gap-2 mb-4">
                         <div className="w-2 h-2 rounded-full bg-[#00d4b6]"></div>
                         <Typography variant="subtitle2" className="font-bold text-slate-600">
@@ -439,10 +439,10 @@ function ReportContent() {
                             </Typography>
                         )}
                     </div>
-                </Grid>
+                </Grid2>
 
                 {/* Medium Term */}
-                <Grid xs={12} md={4}>
+                <Grid2 xs={12} md={4}>
                     <div className="flex items-center gap-2 mb-4">
                         <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
                         <Typography variant="subtitle2" className="font-bold text-slate-600">
@@ -458,10 +458,10 @@ function ReportContent() {
                             </Typography>
                         )}
                     </div>
-                </Grid>
+                </Grid2>
 
                 {/* Long Term */}
-                <Grid xs={12} md={4}>
+                <Grid2 xs={12} md={4}>
                     <div className="flex items-center gap-2 mb-4">
                         <div className="w-2 h-2 rounded-full bg-slate-800"></div>
                         <Typography variant="subtitle2" className="font-bold text-slate-600">
@@ -477,8 +477,8 @@ function ReportContent() {
                             </Typography>
                         )}
                     </div>
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
         </Paper>
 
         <div className="flex justify-center pb-8">
