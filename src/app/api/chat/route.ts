@@ -3,6 +3,7 @@ import { createSign } from 'crypto';
 import { AGENT_CONTEXT } from '@/lib/agent-context';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, collection, getDocs, query, limit, orderBy } from 'firebase/firestore';
+import { getServerEnv } from '@/lib/env';
 
 function base64UrlEncode(input: string | Buffer) {
   return Buffer.from(input)
@@ -13,8 +14,9 @@ function base64UrlEncode(input: string | Buffer) {
 }
 
 async function getAccessToken() {
-  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-  const privateKeyRaw = process.env.GOOGLE_PRIVATE_KEY;
+  const env = getServerEnv();
+  const clientEmail = env.GOOGLE_CLIENT_EMAIL;
+  const privateKeyRaw = env.GOOGLE_PRIVATE_KEY;
 
   if (!clientEmail || !privateKeyRaw) {
     throw new Error('Credenciales de Google no configuradas para Vertex AI');
@@ -125,7 +127,8 @@ export async function POST(request: Request) {
         }
     }
 
-    const projectId = process.env.GOOGLE_PROJECT_ID;
+  const env = getServerEnv();
+  const projectId = env.GOOGLE_PROJECT_ID;
 
     if (!projectId) {
       return NextResponse.json({ success: false, error: 'Project ID de Google no configurado' }, { status: 500 });

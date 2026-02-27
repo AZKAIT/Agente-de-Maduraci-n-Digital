@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { TextToSpeechClient } from '@google-cloud/text-to-speech';
+import { getServerEnv } from '@/lib/env';
 
 export async function POST(request: Request) {
   try {
@@ -9,15 +10,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Texto vacío' }, { status: 400 });
     }
 
-    if (!process.env.GOOGLE_PROJECT_ID || !process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+    const env = getServerEnv();
+    if (!env.GOOGLE_PROJECT_ID || !env.GOOGLE_CLIENT_EMAIL || !env.GOOGLE_PRIVATE_KEY) {
       return NextResponse.json({ success: false, error: 'Credenciales de Google no configuradas' }, { status: 500 });
     }
 
     const client = new TextToSpeechClient({
-      projectId: process.env.GOOGLE_PROJECT_ID,
+      projectId: env.GOOGLE_PROJECT_ID,
       credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: env.GOOGLE_CLIENT_EMAIL,
+        private_key: env.GOOGLE_PRIVATE_KEY,
       },
     });
 

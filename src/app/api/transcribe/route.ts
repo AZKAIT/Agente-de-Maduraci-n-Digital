@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { SpeechClient } from '@google-cloud/speech';
+import { getServerEnv } from '@/lib/env';
 
 export async function POST(request: Request) {
   try {
-    // 1. Validar credenciales
-    if (!process.env.GOOGLE_PROJECT_ID || !process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+    const env = getServerEnv();
+    if (!env.GOOGLE_PROJECT_ID || !env.GOOGLE_CLIENT_EMAIL || !env.GOOGLE_PRIVATE_KEY) {
       return NextResponse.json({ success: false, error: 'Credenciales de Google no configuradas' }, { status: 500 });
     }
 
@@ -20,12 +21,11 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(await audioFile.arrayBuffer());
     const audioBytes = buffer.toString('base64');
 
-    // 4. Configurar el cliente de Google Speech
     const client = new SpeechClient({
-      projectId: process.env.GOOGLE_PROJECT_ID,
+      projectId: env.GOOGLE_PROJECT_ID,
       credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: env.GOOGLE_CLIENT_EMAIL,
+        private_key: env.GOOGLE_PRIVATE_KEY,
       },
     });
 
