@@ -29,13 +29,16 @@ const firebaseConfig: any = {
     envWindow.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const required = [
-  firebaseConfig.apiKey,
-  firebaseConfig.authDomain,
-  firebaseConfig.projectId,
-  firebaseConfig.appId,
-];
-const canInitialize = required.every(Boolean);
+const requiredMap: Record<string, any> = {
+  apiKey: firebaseConfig.apiKey,
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  appId: firebaseConfig.appId,
+};
+const missingKeys = Object.entries(requiredMap)
+  .filter(([, v]) => !v)
+  .map(([k]) => k);
+const canInitialize = missingKeys.length === 0;
 
 let app: any = null;
 let analytics: any = null;
@@ -51,7 +54,7 @@ if (canInitialize) {
   auth = getAuth(app);
 } else {
   if (typeof window !== 'undefined') {
-    console.error('Firebase no inicializado: variables de entorno faltantes');
+    console.error('Firebase no inicializado: variables de entorno faltantes', { missingKeys, env: (globalThis as any).__ENV || null });
   }
 }
 
