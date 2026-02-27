@@ -3,6 +3,7 @@ import { Poppins, Montserrat } from "next/font/google";
 import "../styles/globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import React from "react";
+import Script from "next/script";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -46,14 +47,12 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${montserrat.variable} antialiased`}
       >
+        <Script id="public-env" strategy="beforeInteractive">
+          {`window.__ENV=${JSON.stringify(publicEnv)};`}
+        </Script>
         <AuthProvider>
           {children}
         </AuthProvider>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.__ENV=${JSON.stringify(publicEnv)};`,
-          }}
-        />
       </body>
     </html>
   );
