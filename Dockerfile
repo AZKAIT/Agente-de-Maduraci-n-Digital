@@ -11,6 +11,7 @@ RUN npm ci
 FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS=--max_old_space_size=3072
 # Build-time public envs (set as --build-arg in Cloud Build / Cloud Run build)
 ARG NEXT_PUBLIC_FIREBASE_API_KEY
 ARG NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
