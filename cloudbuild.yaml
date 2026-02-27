@@ -16,6 +16,32 @@ substitutions:
   _NEXT_PUBLIC_APP_URL: ""
 
 steps:
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: validate-substitutions
+    entrypoint: bash
+    args:
+      - -lc
+      - >
+        set -euo pipefail;
+        missing=0;
+        for v in
+          _NEXT_PUBLIC_FIREBASE_API_KEY
+          _NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+          _NEXT_PUBLIC_FIREBASE_PROJECT_ID
+          _NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+          _NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+          _NEXT_PUBLIC_FIREBASE_APP_ID
+          _NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+        ; do
+          if [ -z "${!v:-}" ]; then
+            echo "Missing substitution: $$v";
+            missing=1;
+          fi;
+        done;
+        if [ "$missing" -eq 1 ]; then
+          echo "One or more required substitutions are missing. Set them in the trigger or pass --substitutions.";
+          exit 1;
+        fi
   - name: gcr.io/cloud-builders/docker
     args:
       - build
