@@ -46,10 +46,12 @@ export async function GET(request: Request) {
 
     const html = getHtmlTemplate(report, userEmail || 'Organización');
 
-    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
+    const isLinux = process.platform === 'linux';
+    const envPath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    const executablePath = envPath || (isLinux ? '/usr/bin/chromium' : undefined);
     const userDataDir = process.env.PUPPETEER_USER_DATA_DIR || '/tmp/chrome-user-data';
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: 'new',
       executablePath,
       userDataDir,
       args: [
@@ -59,6 +61,11 @@ export async function GET(request: Request) {
         '--disable-gpu',
         '--disable-extensions',
         '--disable-crash-reporter',
+        '--no-default-browser-check',
+        '--no-first-run',
+        '--remote-debugging-port=0',
+        '--user-data-dir=/tmp/chrome-user-data',
+        '--crash-dumps-dir=/tmp/chrome-crash',
         '--disable-features=AudioServiceOutOfProcess,BackForwardCache,BlockThirdPartyCookies,Translate',
         '--font-render-hinting=none'
       ]
