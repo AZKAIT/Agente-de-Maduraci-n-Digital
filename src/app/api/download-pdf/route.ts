@@ -51,7 +51,7 @@ export async function GET(request: Request) {
     const executablePath = envPath || (isLinux ? '/usr/bin/chromium' : undefined);
     const userDataDir = process.env.PUPPETEER_USER_DATA_DIR || '/tmp/chrome-user-data';
     const browser = await puppeteer.launch({
-      headless: 'new',
+      headless: true,
       executablePath,
       userDataDir,
       args: [
