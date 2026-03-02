@@ -41,6 +41,7 @@ ENV PORT=8080
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV PUPPETEER_CACHE_DIR=/tmp/puppeteer
 ENV HOME=/home/nodejs
+ENV PUPPETEER_USER_DATA_DIR=/tmp/chrome-user-data
 
 # Install Chromium and required fonts/libs for Puppeteer
 RUN apt-get update && apt-get install -y \
@@ -54,7 +55,7 @@ RUN apt-get update && apt-get install -y \
   libgtk-3-0 \
   ca-certificates \
   && rm -rf /var/lib/apt/lists/* \
-  && mkdir -p /tmp/puppeteer ${HOME}
+  && mkdir -p /tmp/puppeteer ${HOME} /tmp/chrome-user-data
 
 # Create non-root user
 RUN addgroup --system nodejs && adduser --system nodejs

@@ -11,7 +11,9 @@ import {
   IconButton,
   Box,
   Link as MuiLink,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogContent
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -34,6 +36,8 @@ export default function EnterpriseSetupPage() {
   const [interviewees, setInterviewees] = useState<Interviewee[]>([
     { name: '', role: '', email: '' }
   ]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   React.useEffect(() => {
     if (!authLoading && !user) {
@@ -92,14 +96,20 @@ export default function EnterpriseSetupPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Error de servidor, vuelva a intentarlo más tarde.');
+        throw new Error('Hubo problemas en mandar la invitación, intente más tarde.');
       }
 
-      alert('Invitación enviada exitosamente.');
-      router.push('/dashboard');
+      setModalMessage('Invitación mandada correctamente.');
+      setModalOpen(true);
+      setTimeout(() => {
+        setModalOpen(false);
+        router.push('/dashboard');
+      }, 1500);
     } catch (error) {
       console.error('Error:', error);
-      alert('Tuvimos problemas al procesar la invitación. Inténtalo más tarde.');
+      setModalMessage('Hubo problemas en mandar la invitación, intente más tarde.');
+      setModalOpen(true);
+      setTimeout(() => setModalOpen(false), 2000);
     } finally {
       setLoading(false);
     }
@@ -249,6 +259,11 @@ export default function EnterpriseSetupPage() {
           </CardContent>
         </Card>
       </div>
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
+        <DialogContent>
+          <Typography variant="body1" className="text-center">{modalMessage}</Typography>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

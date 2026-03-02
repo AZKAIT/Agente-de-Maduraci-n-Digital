@@ -47,14 +47,19 @@ export async function GET(request: Request) {
     const html = getHtmlTemplate(report, userEmail || 'Organización');
 
     const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
+    const userDataDir = process.env.PUPPETEER_USER_DATA_DIR || '/tmp/chrome-user-data';
     const browser = await puppeteer.launch({
       headless: true,
       executablePath,
+      userDataDir,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
+        '--disable-extensions',
+        '--disable-crash-reporter',
+        '--disable-features=AudioServiceOutOfProcess,BackForwardCache,BlockThirdPartyCookies,Translate',
         '--font-render-hinting=none'
       ]
     });
