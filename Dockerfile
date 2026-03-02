@@ -38,6 +38,23 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 # Cloud Run sets PORT; default to 8080 for local docker run
 ENV PORT=8080
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_CACHE_DIR=/tmp/puppeteer
+ENV HOME=/home/nodejs
+
+# Install Chromium and required fonts/libs for Puppeteer
+RUN apt-get update && apt-get install -y \
+  chromium \
+  fonts-liberation \
+  libnss3 \
+  libxss1 \
+  libasound2 \
+  libatk-bridge2.0-0 \
+  libgbm1 \
+  libgtk-3-0 \
+  ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && mkdir -p /tmp/puppeteer ${HOME}
 
 # Create non-root user
 RUN addgroup --system nodejs && adduser --system nodejs

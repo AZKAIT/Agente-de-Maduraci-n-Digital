@@ -92,14 +92,14 @@ export default function EnterpriseSetupPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Error enviando invitaciones');
+        throw new Error('Error de servidor, vuelva a intentarlo más tarde.');
       }
 
-      alert('Invitaciones enviadas correctamente.');
+      alert('Invitación enviada exitosamente.');
       router.push('/dashboard');
     } catch (error) {
       console.error('Error:', error);
-      alert('Hubo un error al procesar la solicitud.');
+      alert('Tuvimos problemas al procesar la invitación. Inténtalo más tarde.');
     } finally {
       setLoading(false);
     }

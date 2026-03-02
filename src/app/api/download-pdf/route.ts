@@ -46,9 +46,17 @@ export async function GET(request: Request) {
 
     const html = getHtmlTemplate(report, userEmail || 'Organización');
 
+    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      executablePath,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--font-render-hinting=none'
+      ]
     });
     const page = await browser.newPage();
     
