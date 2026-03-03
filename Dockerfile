@@ -68,5 +68,4 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
 EXPOSE 8080
-USER nodejs
 CMD ["node","node_modules/next/dist/bin/next","start","-p","8080"]
