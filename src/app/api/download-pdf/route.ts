@@ -3,6 +3,8 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import puppeteer from 'puppeteer';
 import { decodeUserIdentifier } from '@/lib/utils';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 // Helper to fetch report data
 async function fetchReport(id: string, userEmail: string | null) {
@@ -44,14 +46,20 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Report not found' }, { status: 404 });
     }
 
-    const html = getHtmlTemplate(report, userEmail || 'Organización');
+    const logoPath = path.join(process.cwd(), 'public', 'azkait-logo.png');
+    let logoDataUrl = '';
+    try {
+      const logoBuffer = await fs.readFile(logoPath);
+      logoDataUrl = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+    } catch {}
+    const html = getHtmlTemplate(report, userEmail || 'Organización', logoDataUrl);
 
     const isLinux = process.platform === 'linux';
     const envPath = process.env.PUPPETEER_EXECUTABLE_PATH;
     const executablePath = envPath || (isLinux ? '/usr/bin/chromium' : undefined);
     const userDataDir = process.env.PUPPETEER_USER_DATA_DIR || '/tmp/chrome-user-data';
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: 'shell',
       executablePath,
       userDataDir,
       args: [
@@ -105,7 +113,7 @@ export async function GET(request: Request) {
   }
 }
 
-function getHtmlTemplate(report: any, userName: string) {
+function getHtmlTemplate(report: any, userName: string, logoDataUrl: string) {
   const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
   
   // Helpers
@@ -134,26 +142,7 @@ function getHtmlTemplate(report: any, userName: string) {
         <div class="relative z-30 px-16 pt-12 pb-2 flex justify-between items-start">
             <div class="flex flex-col">
                 <div class="flex items-center gap-3">
-                    <svg width="32" height="32" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" class="rounded-full shadow-sm">
-                      <defs>
-                        <radialGradient id="g1" cx="50%" cy="30%" r="70%">
-                          <stop offset="0%" stop-color="#00E4EF"/>
-                          <stop offset="60%" stop-color="#152084"/>
-                          <stop offset="100%" stop-color="#00122b"/>
-                        </radialGradient>
-                        <linearGradient id="wave1" x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stop-color="#00E4EF"/>
-                          <stop offset="100%" stop-color="#1B006A"/>
-                        </linearGradient>
-                        <linearGradient id="wave2" x1="1" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="#152084"/>
-                          <stop offset="100%" stop-color="#00122b"/>
-                        </linearGradient>
-                      </defs>
-                      <circle cx="64" cy="64" r="62" fill="url(#g1)"/>
-                      <path d="M16,64 C40,40 72,36 112,56" fill="none" stroke="url(#wave1)" stroke-width="14" opacity="0.85"/>
-                      <path d="M16,86 C44,68 78,72 112,92" fill="none" stroke="url(#wave2)" stroke-width="12" opacity="0.8"/>
-                    </svg>
+                    <img src="${logoDataUrl}" alt="AZKA IT" style="height:32px;width:auto;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,0.2)" />
                     <h1 class="text-2xl font-bold tracking-tight text-white">AZKA IT</h1>
                 </div>
                 <p class="text-[8px] tracking-[0.3em] text-azka-teal uppercase mt-1 ml-1">Consultoría Estratégica</p>
