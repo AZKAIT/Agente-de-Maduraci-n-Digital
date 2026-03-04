@@ -92,35 +92,15 @@ export async function POST(request: Request) {
             if (parentDoc.exists()) {
                 const data = parentDoc.data();
                 const team = data.interviewees || [];
-                const otherRoles = team.filter((m: any) => m.email !== userEmail).map((m: any) => `${m.name} (${m.role})`);
                 
                 additionalContext += `\n\nCONTEXTO DE LA ENTREVISTA ENTERPRISE:\n`;
                 additionalContext += `Estás entrevistando a: ${userEmail} con el rol de: ${role}.\n`;
-                additionalContext += `El equipo está compuesto por: ${otherRoles.join(', ')}.\n`;
                 
                 if (team.length <= 1) {
                      additionalContext += `Como es el único miembro, evalúa TODAS las 7 dimensiones del diagnóstico.\n`;
                 } else {
-                     additionalContext += `Como hay múltiples miembros, enfócate PRINCIPALMENTE en las dimensiones y preguntas más relevantes para un ${role}. No intentes cubrir todo si no es pertinente para su rol. Confía en que otros miembros cubrirán otras áreas.\n`;
+                     additionalContext += `Enfócate EXCLUSIVAMENTE en las dimensiones y preguntas más relevantes para un ${role}. No compartas ni cites información de otros entrevistados.\n`;
                 }
-                
-                // Shared Context
-                 const sessionsSnap = await getDocs(collection(db, 'interviews', interviewId, 'sessions'));
-                 let sharedInsights = "";
-                 
-                 for (const sessionDoc of sessionsSnap.docs) {
-                     if (sessionDoc.id !== userEmail) {
-                          const msgsSnap = await getDocs(query(collection(sessionDoc.ref, 'messages'), orderBy('timestamp', 'desc'), limit(5)));
-                          const msgs = msgsSnap.docs.map(d => `${d.data().role}: ${d.data().text}`).reverse().join('\n');
-                          if (msgs) {
-                              sharedInsights += `\n--- Entrevistado: ${sessionDoc.id} ---\n${msgs}\n`;
-                          }
-                     }
-                 }
-                 
-                 if (sharedInsights) {
-                     additionalContext += `\nCONTEXTO COMPARTIDO (Lo que han dicho otros miembros):\n${sharedInsights}\nUtiliza esta información para contrastar o profundizar.\n`;
-                 }
             }
         } catch (error) {
             console.error("Error fetching enterprise context:", error);
@@ -168,7 +148,7 @@ export async function POST(request: Request) {
         systemInstruction: {
           parts: [
             {
-              text: AGENT_CONTEXT + additionalContext,
+              text: AGENT_CONTEXT + additionalContext + `\nREGLAS TEMPORALES:\n- Reconoce y dirige la entrevista únicamente a ${userEmail} con rol ${role}.\n- No reveles ni reutilices contenido de terceros.\n- Mantén la duración total bajo 15 minutos: sé conciso, una pregunta por turno, cierra oportunamente.\n`,
             },
           ],
         },
