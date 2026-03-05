@@ -46,7 +46,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Report not found' }, { status: 404 });
     }
 
-    const logoPath = path.join(process.cwd(), 'public', 'azkait-logo.png');
+    const logoPath = path.join(process.cwd(), 'public', 'azkait-logo-wordmark.png');
     let logoDataUrl = '';
     try {
       const logoBuffer = await fs.readFile(logoPath);
@@ -142,8 +142,7 @@ function getHtmlTemplate(report: any, userName: string, logoDataUrl: string) {
         <div class="relative z-30 px-16 pt-12 pb-2 flex justify-between items-start">
             <div class="flex flex-col">
                 <div class="flex items-center gap-3">
-                    <img src="${logoDataUrl}" alt="AZKA IT" style="height:32px;width:auto;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,0.2)" />
-                    <h1 class="text-2xl font-bold tracking-tight text-white">AZKA IT</h1>
+                    <img src="${logoDataUrl}" alt="AZKA IT" style="height:36px;width:auto;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,0.2)" />
                 </div>
                 <p class="text-[8px] tracking-[0.3em] text-azka-teal uppercase mt-1 ml-1">Consultoría Estratégica</p>
             </div>
