@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Typography, IconButton, Button, Box, Collapse, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Typography, IconButton, Button, Box, Collapse, Dialog, DialogTitle, DialogContent, DialogActions, Avatar } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -10,7 +10,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc, updateDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
 import { encodeUserIdentifier } from '@/lib/utils';
 
@@ -203,6 +203,50 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
                 status: 'active'
             }, { merge: true }).catch(err => console.error("Error creating session doc:", err));
         }
+    }
+  }, [user, sessionId, propInterviewId, invitedUserEmail]);
+
+  useEffect(() => {
+    // Load existing messages to maintain persistence
+    const loadHistory = async () => {
+      if (!sessionId || hasInitialized.current) return;
+      
+      try {
+        let collectionRef;
+        if (propInterviewId && (invitedUserEmail || user?.email)) {
+          const email = invitedUserEmail || user?.email || 'unknown';
+          collectionRef = collection(db, 'interviews', propInterviewId, 'sessions', email, 'messages');
+        } else {
+          collectionRef = collection(db, 'interviews', sessionId, 'messages');
+        }
+
+        const q = query(collectionRef, orderBy('timestamp', 'asc'));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          const loadedMessages: Message[] = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            loadedMessages.push({
+              role: data.role,
+              text: data.text
+            });
+          });
+          
+          if (loadedMessages.length > 0) {
+            setChatHistory(loadedMessages);
+            setHasStarted(true);
+            setShowChat(true);
+            hasInitialized.current = true;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+      }
+    };
+
+    if (user || invitedUserEmail) {
+      loadHistory();
     }
   }, [user, sessionId, propInterviewId, invitedUserEmail]);
 
@@ -447,83 +491,99 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
           </div>
       </Collapse>
 
-      <div className="bg-brand-indigo rounded-3xl p-8 w-full md:w-80 lg:w-96 h-[500px] shadow-2xl flex flex-col items-center text-white relative overflow-hidden shrink-0 border border-white/10">
+      <div className="bg-[#1e293b] rounded-3xl p-8 w-full md:w-[450px] lg:w-[500px] h-[600px] shadow-2xl flex flex-col items-center justify-between text-white relative overflow-hidden shrink-0 border border-white/10">
         
-        {/* Chat Toggle Button - Moved to Left */}
-        {hasStarted && (
-            <div className="absolute top-4 left-4 z-10">
+        {/* Meet-style Header - Simplified (Removed REC) */}
+        <div className="w-full flex justify-end items-center absolute top-6 px-8 z-10">
+            {hasStarted && (
                 <IconButton 
                     onClick={() => setShowChat(!showChat)}
                     className={`text-white/80 hover:text-white hover:bg-white/10 ${showChat ? 'bg-white/20' : ''}`}
+                    size="small"
                 >
-                    <ChatBubbleOutlineIcon />
+                    <ChatBubbleOutlineIcon fontSize="small" />
                 </IconButton>
-            </div>
-        )}
+            )}
+        </div>
 
         {!hasStarted ? (
-            <div className="absolute inset-0 z-50 bg-brand-indigo/95 flex flex-col items-center justify-center p-6 text-center">
+            <div className="absolute inset-0 z-50 bg-[#1e293b]/95 flex flex-col items-center justify-center p-8 text-center backdrop-blur-sm">
+                <Avatar 
+                    src="/Avatar.png" 
+                    sx={{ width: 120, height: 120, mb: 4, border: '4px solid #38bdf8' }}
+                />
                 <Typography variant="h5" className="font-bold mb-4">
-                    ¿Listo para comenzar?
+                    ¿Listo para comenzar con Christina?
                 </Typography>
-                <Typography variant="body1" className="mb-8 opacity-90">
+                <Typography variant="body1" className="mb-8 text-sky-200/60">
                     Haga clic para iniciar la entrevista y activar el audio.
                 </Typography>
                 <Button 
                     variant="contained" 
                     size="large"
                     onClick={handleStart}
-                    className="bg-white text-brand-indigo font-bold hover:bg-[#f5faff] rounded-full px-8 py-3"
+                    className="bg-[#38bdf8] text-white font-bold hover:bg-[#0ea5e9] rounded-full px-10 py-3.5 shadow-lg shadow-sky-500/20 transition-all active:scale-95"
                 >
-                    Comenzar Entrevista
+                    Entrar a la reunión
                 </Button>
             </div>
         ) : null}
 
-        <Typography variant="h5" className="font-semibold mb-2">
-          Entrevista en curso
-        </Typography>
-
-        <Typography variant="body2" className="text-sky-100 mb-4 text-center">
-          {isRecording ? 'Escuchando...' : isSpeaking ? 'Hablando...' : 'Presiona el micrófono para hablar'}
-        </Typography>
-
-        {/* Audio Wave Visualization Placeholder */}
-        <div className={`h-24 w-full flex justify-center items-center gap-1 mb-8 bg-sky-400/30 rounded-xl backdrop-blur-sm transition-opacity duration-300 ${isRecording || isSpeaking ? 'opacity-100' : 'opacity-50'}`}>
-            {[...Array(20)].map((_, i) => (
-                <div 
-                    key={i} 
-                    className={`w-1 bg-white rounded-full ${isRecording || isSpeaking ? 'animate-pulse' : ''}`}
-                    style={{ 
-                        height: (isRecording || isSpeaking) ? `${Math.random() * 40 + 20}%` : '4px',
-                        animationDelay: `${i * 0.05}s`,
-                        transition: 'height 0.2s ease'
+        {/* Main Content Area - Large Avatar */}
+        <div className="flex-1 flex flex-col items-center justify-center w-full relative">
+            <div className="relative">
+                {/* Speaking Animation Circles */}
+                {isSpeaking && (
+                    <>
+                        <div className="absolute inset-0 rounded-full bg-sky-400/30 animate-[ping_2s_linear_infinite]" />
+                        <div className="absolute inset-0 rounded-full bg-sky-400/20 animate-[ping_3s_linear_infinite]" />
+                    </>
+                )}
+                
+                <Avatar 
+                    src="/Avatar.png" 
+                    sx={{ 
+                        width: 180, 
+                        height: 180, 
+                        border: isSpeaking ? '4px solid #38bdf8' : '2px solid rgba(255,255,255,0.1)',
+                        boxShadow: isSpeaking ? '0 0 40px rgba(56, 189, 248, 0.4)' : 'none',
+                        transition: 'all 0.3s ease-in-out',
+                        position: 'relative',
+                        zIndex: 2
                     }}
                 />
-            ))}
-            <AutoAwesomeIcon className="absolute top-2 right-2 text-white/50" />
+                
+                {/* Christina Name Tag */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-1 rounded-full border border-white/10 z-10">
+                    <Typography variant="caption" className="font-bold tracking-wide">Christina</Typography>
+                </div>
+            </div>
+
+            <Typography variant="body2" className={`mt-8 font-medium transition-all duration-300 ${isSpeaking ? 'text-sky-400' : 'text-sky-100/70'}`}>
+                {isRecording ? 'Escuchando...' : isSpeaking ? 'Christina está hablando...' : 'Presiona el micrófono para hablar'}
+            </Typography>
         </div>
 
-        {/* Controls */}
-        <div className="flex gap-4 mb-6">
+        {/* Meet-style Bottom Controls */}
+        <div className="w-full bg-[#0f172a]/60 backdrop-blur-xl p-6 flex items-center justify-center gap-6 border-t border-white/10">
             <IconButton 
-                className={`p-4 transition-all duration-300 ${isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-sky-600 hover:bg-sky-700'}`}
+                className={`p-4 transition-all duration-300 ${isRecording ? 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30' : 'bg-white/10 hover:bg-white/20'}`}
                 size="large"
                 onClick={isRecording ? stopRecording : startRecording}
                 disabled={isProcessing || isSpeaking}
             >
-                {isRecording ? <StopIcon fontSize="inherit" className="text-white" /> : <MicIcon fontSize="inherit" className="text-white" />}
+                {isRecording ? <StopIcon className="text-white" /> : <MicIcon className={`text-white ${isRecording ? 'animate-pulse' : ''}`} />}
             </IconButton>
-        </div>
 
-        <Button 
-            variant="text" 
-            startIcon={<CheckCircleOutlineIcon />}
-            onClick={finishInterview}
-            className="text-white/70 hover:text-white normal-case"
-        >
-            Terminar Entrevista
-        </Button>
+            <Button 
+                variant="contained" 
+                startIcon={<CheckCircleOutlineIcon />}
+                onClick={finishInterview}
+                className="bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-bold rounded-full px-6 py-3 border border-red-500/20 transition-all normal-case"
+            >
+                Terminar Entrevista
+            </Button>
+        </div>
       </div>
 
       {/* Custom Confirmation Dialog */}
