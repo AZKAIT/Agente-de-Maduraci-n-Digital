@@ -444,7 +444,7 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
     <div className="flex flex-col md:flex-row justify-center items-start gap-4 w-full p-4 transition-all duration-500">
       
       {/* Side Chat Panel */}
-      <Collapse in={showChat} orientation="horizontal" timeout={300} unmountOnExit>
+      <Collapse in={showChat} orientation="horizontal" timeout={300} unmountOnExit id="tour-chat-panel">
           <div className="bg-sky-500 rounded-3xl p-6 w-full md:w-80 h-[500px] shadow-2xl flex flex-col text-white relative border border-white/10">
                 <div className="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
                     <Typography variant="h6" className="font-bold flex items-center gap-2">
@@ -452,6 +452,7 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
                         Historial
                     </Typography>
                     <IconButton 
+                        id="tour-close-chat"
                         size="small" 
                         onClick={() => setShowChat(false)}
                         className="text-white/70 hover:text-white"
@@ -497,6 +498,7 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
         <div className="w-full flex justify-end items-center absolute top-6 px-8 z-10">
             {hasStarted && (
                 <IconButton 
+                    id="tour-toggle-chat"
                     onClick={() => setShowChat(!showChat)}
                     className={`text-white/80 hover:text-white hover:bg-white/10 ${showChat ? 'bg-white/20' : ''}`}
                     size="small"

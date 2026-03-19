@@ -20,6 +20,7 @@ import Header from '@/components/Header';
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useSetupTour } from '@/hooks/useSetupTour';
 
 interface Interviewee {
   name: string;
@@ -34,6 +35,8 @@ export default function EnterpriseSetupPage() {
   const [interviewees, setInterviewees] = useState<Interviewee[]>([
     { name: '', role: '', email: '' }
   ]);
+
+  useSetupTour(!authLoading && !!user);
 
   React.useEffect(() => {
     if (!authLoading && !user) {
@@ -122,7 +125,7 @@ export default function EnterpriseSetupPage() {
         <Card className="rounded-[2.5rem] shadow-sm border-none bg-white p-8 md:p-12 min-h-[500px]">
           <CardContent className="p-0">
             {/* Header Section inside Card */}
-            <div className="mb-8">
+            <div className="mb-8" id="tour-setup-header">
               <Typography variant="h6" className="font-bold text-slate-900 text-xl">
                 Configuracion: Enterprise
               </Typography>
@@ -137,7 +140,7 @@ export default function EnterpriseSetupPage() {
             </div>
 
             {/* Interviewees Section */}
-            <div className="mb-6">
+            <div className="mb-6" id="tour-setup-interviewees">
               <Typography variant="h6" className="font-bold text-slate-900 mb-4">
                 Entrevistados
               </Typography>
@@ -234,7 +237,8 @@ export default function EnterpriseSetupPage() {
             </div>
 
             <div className="flex justify-end mt-8">
-                <Button
+                <Button 
+                    id="tour-setup-submit"
                     variant="contained"
                     onClick={handleSendInvites}
                     disabled={loading}

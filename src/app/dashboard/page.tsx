@@ -19,11 +19,14 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import SchoolIcon from '@mui/icons-material/School';
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import Header from '@/components/Header';
 import { encodeUserIdentifier } from '@/lib/utils';
+import { useDashboardTour } from '@/hooks/useDashboardTour';
+import { IconButton } from '@mui/material';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -33,6 +36,9 @@ export default function DashboardPage() {
   const [fetching, setFetching] = useState(true);
 
   const currentInterviews = tabValue === 0 ? interviewsState.owned : interviewsState.invited;
+
+  // Start tour only when data is ready and loading is finished
+  useDashboardTour(!loading && !fetching && !!user);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -107,6 +113,11 @@ export default function DashboardPage() {
     router.push('/new-diagnostic');
   };
 
+  const handleResetTour = () => {
+    localStorage.removeItem('azkait_dashboard_tour_completed');
+    window.location.reload();
+  };
+
   const formatDate = (timestamp: any) => {
     if (!timestamp) return '';
     // Handle both Firestore Timestamp and regular Date objects if needed, though Firestore returns Timestamp
@@ -139,25 +150,35 @@ export default function DashboardPage() {
                         Gestiona y monitorea tus diagnósticos de IA
                     </Typography>
                 </div>
-                <Button 
-                    variant="contained" 
-                    startIcon={<AddIcon />}
-                    onClick={handleNewDiagnostic}
-                    className="bg-brand-cyan hover:bg-[#0cd2db] text-white font-bold rounded-full px-6 py-2 normal-case shadow-none"
-                    sx={{ backgroundColor: '#00E4EF', '&:hover': { backgroundColor: '#0cd2db' } }}
-                >
-                    Nuevo Diagnóstico
-                </Button>
+                <div className="flex items-center gap-4">
+                    <IconButton 
+                        onClick={handleResetTour}
+                        title="Repetir guía de usuario"
+                        sx={{ color: '#94a3b8', '&:hover': { color: '#64748b', backgroundColor: 'rgba(0,0,0,0.04)' } }}
+                    >
+                        <SchoolIcon />
+                    </IconButton>
+                    <Button 
+                        id="tour-new-diagnostic"
+                        variant="contained" 
+                        startIcon={<AddIcon />}
+                        onClick={handleNewDiagnostic}
+                        className="bg-brand-cyan hover:bg-[#0cd2db] text-white font-bold rounded-full px-6 py-2 normal-case shadow-none"
+                        sx={{ backgroundColor: '#00E4EF', '&:hover': { backgroundColor: '#0cd2db' } }}
+                    >
+                        Nuevo Diagnóstico
+                    </Button>
+                </div>
             </div>
 
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Box id="tour-tabs" sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="dashboard tabs" textColor="primary" indicatorColor="primary">
                     <Tab label="Mis Proyectos" sx={{ textTransform: 'none', fontWeight: 'bold', fontSize: '1rem' }} />
                     <Tab label="Invitaciones" sx={{ textTransform: 'none', fontWeight: 'bold', fontSize: '1rem' }} />
                 </Tabs>
             </Box>
 
-            <TableContainer component={Paper} className="rounded-3xl shadow-sm overflow-hidden">
+            <TableContainer id="tour-table" component={Paper} className="rounded-3xl shadow-sm overflow-hidden">
                 <Table>
                     <TableHead className="bg-slate-50">
                         <TableRow>
