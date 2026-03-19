@@ -26,7 +26,7 @@ function InterviewContent() {
   const [currentUserInfo, setCurrentUserInfo] = useState<{name: string, role: string} | null>(null);
   const [interviewType, setInterviewType] = useState<string | null>(null);
 
-  useInterviewTour(!loading && !!user, interviewType);
+  useInterviewTour(!loading && !!user);
 
   const handleResetTour = () => {
     localStorage.removeItem('azkait_interview_tour_completed');
