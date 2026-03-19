@@ -201,10 +201,19 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
                 userEmail: user.email,
                 createdAt: serverTimestamp(),
                 status: 'active'
-            }, { merge: true }).catch(err => console.error("Error creating session doc:", err));
+            }, { merge: true })
+            .then(() => {
+                // Update URL to include the sessionId if not already present
+                const currentUrl = new URL(window.location.href);
+                if (!currentUrl.searchParams.has('id')) {
+                    currentUrl.searchParams.set('id', sessionId);
+                    router.replace(currentUrl.pathname + currentUrl.search);
+                }
+            })
+            .catch(err => console.error("Error creating session doc:", err));
         }
     }
-  }, [user, sessionId, propInterviewId, invitedUserEmail]);
+  }, [user, sessionId, propInterviewId, invitedUserEmail, router]);
 
   useEffect(() => {
     // Load existing messages to maintain persistence
