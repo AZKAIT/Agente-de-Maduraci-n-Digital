@@ -105,12 +105,10 @@ export async function POST(request: Request) {
 
       OBJETIVO:
       Proveer un diagnóstico crudo pero constructivo, con un tono ejecutivo, formal y directo.
-      IMPORTANTE (SINCERIDAD): Sé honesto y sincero. Si la entrevista está vacía, es muy corta o el usuario no respondió a las preguntas (solo hay saludos iniciales), NO INVENTES información. 
-      En ese caso:
-      - Califica con 1 (Inicial) en TODAS las dimensiones.
-      - En el análisis de cada dimensión, indica claramente: "No se proporcionó información suficiente durante la entrevista para evaluar esta área."
-      - En el resumen ejecutivo, explica que la calificación es baja debido a la falta de interacción o datos proporcionados por el usuario.
-      - En el roadmap, sugiere como primer paso "Realizar un diagnóstico completo y detallado".
+      SINCERIDAD Y PRECISIÓN:
+      - Si la entrevista contiene respuestas sustantivas (aunque sean pocas, ej. 3-5 respuestas reales), EVALÚA lo que el usuario proporcionó con puntajes reales.
+      - Solo si la entrevista está VACÍA, es extremadamente corta (solo saludos) o el usuario no respondió a ninguna pregunta, califica con 1 (Inicial) y menciona "Falta de información".
+      - No generalices: si el usuario habló de Estrategia pero no de Datos, califica Estrategia con lo que merece y Datos con 1 (Inicial).
 
       ESTRUCTURA DEL REPORTE (JSON):
       Debes evaluar 7 dimensiones: Estrategia, Cultura, Procesos, Datos, Analítica, Tecnología, Gobierno.
@@ -118,17 +116,17 @@ export async function POST(request: Request) {
       Para cada dimensión, genera:
       - score: 1-5 (entero).
       - level: "Inicial", "Básico", "Intermedio", "Avanzado", "Optimizado".
-      - analysis: CRÍTICO. Un párrafo detallado (50-70 palabras) explicando el estado actual. MENCIONA EVIDENCIA DE LA ENTREVISTA. Si la información es nula o el usuario no respondió, califica con 1 y explica que no hubo datos para evaluar esta área.
+      - analysis: CRÍTICO. Un párrafo detallado (50-70 palabras) explicando el estado actual. MENCIONA EVIDENCIA DE LA ENTREVISTA. Si la información es nula para una dimensión, califica con 1.
       - recommendation: Una acción estratégica concreta.
 
       Calcula:
-      - overallScore: Promedio (1 decimal).
-      - strongestArea: Nombre de la dimensión más fuerte.
-      - mainOpportunity: Nombre de la dimensión más crítica.
-      - executiveSummary: Un resumen gerencial de 2-3 párrafos (150-200 palabras) que sintetice el estado actual, los riesgos de no actuar y la visión de futuro. Si no hubo información suficiente, el resumen ejecutivo debe reflejarlo de forma profesional.
+      - overallScore: Promedio real de las dimensiones (1 decimal).
+      - strongestArea: Dimensión mejor calificada.
+      - mainOpportunity: Dimensión con menor puntaje (excluyendo las de nivel 1 por falta de info si es posible).
+      - executiveSummary: Un resumen gerencial de 2-3 párrafos (150-200 palabras) que sintetice el estado actual, los riesgos de no actuar y la visión de futuro.
 
       Genera un Roadmap Estratégico Detallado (3 HORIZONTES):
-      Debes generar iniciativas para CADA horizonte (NOW, NEXT, FUTURE). Si no hubo información suficiente, la primera iniciativa debe ser realizar una evaluación profunda.
+      Debes generar iniciativas para CADA horizonte (NOW, NEXT, FUTURE). Si no hubo información suficiente, la primera iniciativa debe ser realizar una evaluación profunda en las áreas faltantes.
       
       Cada iniciativa (item) del roadmap debe tener OBLIGATORIAMENTE:
       - title: Nombre del proyecto.
@@ -140,8 +138,8 @@ export async function POST(request: Request) {
       FORMATO JSON (Estricto):
       {
         "overallScore": number,
-        "strongestArea": "Sin información suficiente",
-        "mainOpportunity": "Estrategia",
+        "strongestArea": string,
+        "mainOpportunity": string,
         "executiveSummary": string,
         "dimensions": {
           "strategy": { "score": number, "level": string, "analysis": string, "recommendation": string },
