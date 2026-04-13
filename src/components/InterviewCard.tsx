@@ -133,21 +133,29 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
 
   const handleConfirmFinish = async () => {
       setConfirmDialogOpen(false);
-      await updateProgress(true);
-      setSuccessDialogOpen(true);
+      setIsProcessing(true); // Bloquear acciones mientras se guarda
+      try {
+          await updateProgress(true);
+          setSuccessDialogOpen(true);
+      } catch (error) {
+          console.error("Error al finalizar la entrevista:", error);
+          alert("Hubo un error al guardar tu progreso. Por favor intenta de nuevo.");
+      } finally {
+          setIsProcessing(false);
+      }
   };
 
   const handleCloseSuccess = () => {
       setSuccessDialogOpen(false);
-      // Redirect logic
-      if (user) {
-          // Logged in user -> Dashboard (if they own it or are just a user) or Report
-          // User request: "haz que cuando termine la encuesta directamente los mande al dashbor de proyecto"
-          // Interpreting this as sending them to the dashboard where they can see their projects.
-          router.push('/dashboard');
+      // Redirigir directamente al reporte del proyecto/sesión actual
+      if (propInterviewId) {
+          // Caso Enterprise: Redirigir al reporte del proyecto con el email del usuario
+          const email = invitedUserEmail || user?.email;
+          const url = `/report/${propInterviewId}${email ? `?u=${encodeUserIdentifier(email)}` : ''}`;
+          router.push(url);
       } else {
-          // Guest -> Register (which eventually leads to dashboard)
-          router.push(`/?mode=register&u=${encodeUserIdentifier(invitedUserEmail || '')}`);
+          // Caso Micro: Redirigir al reporte usando el sessionId
+          router.push(`/report/${sessionId}`);
       }
   };
 
