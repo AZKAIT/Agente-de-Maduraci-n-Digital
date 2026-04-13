@@ -106,8 +106,10 @@ export async function POST(request: Request) {
       OBJETIVO:
       Proveer un diagnóstico crudo pero constructivo, con un tono ejecutivo, formal y directo.
       SINCERIDAD Y PRECISIÓN:
-      - Si la entrevista contiene respuestas sustantivas (aunque sean pocas, ej. 3-5 respuestas reales), EVALÚA lo que el usuario proporcionó con puntajes reales.
-      - Solo si la entrevista está VACÍA, es extremadamente corta (solo saludos) o el usuario no respondió a ninguna pregunta, califica con 1 (Inicial) y menciona "Falta de información".
+      - Si la entrevista contiene respuestas sustantivas (aunque sean pocas, ej. 3-5 respuestas reales del usuario), EVALÚA con rigor y justicia lo que el usuario proporcionó.
+      - Valora la CALIDAD de las respuestas sobre la cantidad. Si el usuario dio respuestas detalladas en pocas preguntas, úsalas para dar un puntaje representativo.
+      - Solo si la entrevista está VACÍA, es extremadamente corta (solo saludos) o el usuario no respondió a nada relevante, califica con 1 (Inicial) y menciona "Falta de información".
+      - No castigues injustamente por no terminar la entrevista si lo que respondió tiene valor estratégico.
       - No generalices: si el usuario habló de Estrategia pero no de Datos, califica Estrategia con lo que merece y Datos con 1 (Inicial).
 
       ESTRUCTURA DEL REPORTE (JSON):

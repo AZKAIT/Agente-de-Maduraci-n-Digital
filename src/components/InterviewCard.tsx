@@ -233,7 +233,7 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
       
       try {
         let collectionRef;
-        if (propInterviewId && (invitedUserEmail || user?.email)) {
+        if (interviewType === 'enterprise' && propInterviewId && (invitedUserEmail || user?.email)) {
           const email = invitedUserEmail || user?.email || 'unknown';
           collectionRef = collection(db, 'interviews', propInterviewId, 'sessions', email, 'messages');
         } else {
@@ -288,11 +288,9 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
     if (!sessionId) return;
     try {
       let collectionRef;
-      if (propInterviewId && (invitedUserEmail || user?.email)) {
+      if (interviewType === 'enterprise' && propInterviewId && (invitedUserEmail || user?.email)) {
          // Enterprise: Store in subcollection for this user
          const email = invitedUserEmail || user?.email || 'unknown';
-         // Sanitize email for path (replace dots?) Firestore allows dots in IDs usually, but let's be safe? 
-         // Actually Firestore IDs can contain dots.
          collectionRef = collection(db, 'interviews', propInterviewId, 'sessions', email, 'messages');
       } else {
          // Micro/Standard
