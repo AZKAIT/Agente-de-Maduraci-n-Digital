@@ -36,6 +36,7 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
   // Use prop ID if available, otherwise generate new session ID
   const [sessionId, setSessionId] = useState(() => propInterviewId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [role, setRole] = useState<string>('');
+  const [interviewType, setInterviewType] = useState<string>('micro');
   const [hasStarted, setHasStarted] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
@@ -76,7 +77,7 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
      let currentProgress = isCompleted ? 100 : Math.min(Math.round((chatHistory.length / 2) * 5), 95);
 
      try {
-         if (propInterviewId && (invitedUserEmail || user?.email)) {
+         if (propInterviewId && (invitedUserEmail || user?.email) && interviewType === 'enterprise') {
              // Enterprise: Update parent doc array + subcollection
              const email = invitedUserEmail || user?.email;
              const parentRef = doc(db, 'interviews', propInterviewId);
@@ -159,15 +160,16 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
       }
   };
 
-  // Fetch role if this is an enterprise interview
+  // Fetch role and type if this is an existing interview
   useEffect(() => {
-    const fetchRole = async () => {
-      if (propInterviewId && (invitedUserEmail || user?.email)) {
+    const fetchInterviewData = async () => {
+      if (propInterviewId) {
         try {
           const docRef = doc(db, 'interviews', propInterviewId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const data = docSnap.data();
+            setInterviewType(data.type || 'micro');
             if (data.type === 'enterprise' && data.interviewees) {
               const emailToFind = (invitedUserEmail || user?.email || '').toLowerCase();
               const interviewee = data.interviewees.find((i: any) => (i.email || '').toLowerCase() === emailToFind);
@@ -178,12 +180,12 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
             }
           }
         } catch (error) {
-          console.error("Error fetching role:", error);
+          console.error("Error fetching interview data:", error);
         }
       }
     };
     
-    fetchRole();
+    fetchInterviewData();
   }, [propInterviewId, invitedUserEmail, user]);
 
   useEffect(() => {
@@ -208,7 +210,8 @@ const InterviewCard: React.FC<InterviewCardProps> = ({ interviewId: propIntervie
                 userId: user.uid,
                 userEmail: user.email,
                 createdAt: serverTimestamp(),
-                status: 'active'
+                status: 'active',
+                progress: 0
             }, { merge: true })
             .then(() => {
                 // Update URL to include the sessionId if not already present
