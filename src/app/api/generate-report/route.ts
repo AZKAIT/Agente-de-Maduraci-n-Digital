@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     }
 
     if (!fullTranscript.trim()) {
-        return NextResponse.json({ success: true, report: null, message: "No hay datos para analizar" });
+        fullTranscript = "La entrevista no se ha iniciado o no contiene mensajes.";
     }
 
     // 2. Call Gemini
@@ -104,7 +104,13 @@ export async function POST(request: Request) {
       ${userEmail ? 'Reporte individual para un líder/rol específico. Usa sus respuestas textuales como evidencia.' : 'Reporte corporativo consolidado. Identifica patrones, silos y consensos.'}
 
       OBJETIVO:
-      Proveer un diagnóstico crudo pero constructivo, con un tono ejecutivo, formal y directo. Evita generalidades; basa cada afirmación en lo dicho por el usuario.
+      Proveer un diagnóstico crudo pero constructivo, con un tono ejecutivo, formal y directo.
+      IMPORTANTE (SINCERIDAD): Sé honesto y sincero. Si la entrevista está vacía, es muy corta o el usuario no respondió a las preguntas (solo hay saludos iniciales), NO INVENTES información. 
+      En ese caso:
+      - Califica con 1 (Inicial) en TODAS las dimensiones.
+      - En el análisis de cada dimensión, indica claramente: "No se proporcionó información suficiente durante la entrevista para evaluar esta área."
+      - En el resumen ejecutivo, explica que la calificación es baja debido a la falta de interacción o datos proporcionados por el usuario.
+      - En el roadmap, sugiere como primer paso "Realizar un diagnóstico completo y detallado".
 
       ESTRUCTURA DEL REPORTE (JSON):
       Debes evaluar 7 dimensiones: Estrategia, Cultura, Procesos, Datos, Analítica, Tecnología, Gobierno.
@@ -112,17 +118,17 @@ export async function POST(request: Request) {
       Para cada dimensión, genera:
       - score: 1-5 (entero).
       - level: "Inicial", "Básico", "Intermedio", "Avanzado", "Optimizado".
-      - analysis: CRÍTICO. Un párrafo detallado (50-70 palabras) explicando el estado actual. MENCIONA EVIDENCIA DE LA ENTREVISTA. Si no hay suficiente info, infiere basado en el contexto pero NO lo dejes vacío.
+      - analysis: CRÍTICO. Un párrafo detallado (50-70 palabras) explicando el estado actual. MENCIONA EVIDENCIA DE LA ENTREVISTA. Si la información es nula o el usuario no respondió, califica con 1 y explica que no hubo datos para evaluar esta área.
       - recommendation: Una acción estratégica concreta.
 
       Calcula:
       - overallScore: Promedio (1 decimal).
       - strongestArea: Nombre de la dimensión más fuerte.
       - mainOpportunity: Nombre de la dimensión más crítica.
-      - executiveSummary: Un resumen gerencial de 2-3 párrafos (150-200 palabras) que sintetice el estado actual, los riesgos de no actuar y la visión de futuro.
+      - executiveSummary: Un resumen gerencial de 2-3 párrafos (150-200 palabras) que sintetice el estado actual, los riesgos de no actuar y la visión de futuro. Si no hubo información suficiente, el resumen ejecutivo debe reflejarlo de forma profesional.
 
       Genera un Roadmap Estratégico Detallado (3 HORIZONTES):
-      Debes generar iniciativas para CADA horizonte (NOW, NEXT, FUTURE).
+      Debes generar iniciativas para CADA horizonte (NOW, NEXT, FUTURE). Si no hubo información suficiente, la primera iniciativa debe ser realizar una evaluación profunda.
       
       Cada iniciativa (item) del roadmap debe tener OBLIGATORIAMENTE:
       - title: Nombre del proyecto.
@@ -134,8 +140,8 @@ export async function POST(request: Request) {
       FORMATO JSON (Estricto):
       {
         "overallScore": number,
-        "strongestArea": string,
-        "mainOpportunity": string,
+        "strongestArea": "Sin información suficiente",
+        "mainOpportunity": "Estrategia",
         "executiveSummary": string,
         "dimensions": {
           "strategy": { "score": number, "level": string, "analysis": string, "recommendation": string },
